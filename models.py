@@ -43,3 +43,17 @@ class LayerNormalization(nn.Module):
 
     def forward(self, x):
         return self.alpha * (x - x.mean(dim=-1, keepdim=True)) / (x.std(dim=-1, keepdim=True) + self.eps) + self.bias
+
+class FeedForwardBlock(nn.Module):
+
+    def __init__(self, d_model: int, d_ff: int, dropout: float):
+        super().__init__()
+        # On projette dans une dimension plus grande et on introduira de la non-linéarité (avec ReLU)
+        self.linear_1 = nn.Linear(d_model, d_ff)
+        self.dropout = nn.Dropout(dropout)
+        # On retourne dans la dimension initiale avec les nouvelles informations
+        self.linear_2 = nn.Linear(d_ff, d_model)
+
+    def forward(self, x):
+        return self.linear_2(self.dropout(torch.relu(self.linear_1(x))))
+    
