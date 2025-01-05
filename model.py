@@ -127,7 +127,7 @@ class EncoderBlock(nn.Module):
                                                                                 x, # Key
                                                                                 x, #Value
                                                                                 src_mask)) # Mask
-        # Encoder : self-attention -> feed-forward ; Decoder : self-attention -> feed-forward -> cross-attention
+        # Encoder : self-attention -> feed-forward ; Decoder : self-attention -> cross-attention -> feed-forward
         x = self.residual_connections[1](x, self.feed_forward_block)
         return x
     
@@ -140,4 +140,31 @@ class Encoder(nn.Module):
     def forward(self, x, src_mask):
         for layer in self.layers:
             x = layer(x, src_mask)
+        return self.norm(x)
+
+class DecoderBlock(nn.Module):
+    def __init__(self, self_attention_block: MultiHeadAttentionBlock,
+                 cross_attention_block: MultiHeadAttentionBlock,
+                 feed_forward_block: FeedForwardBlock, dropout: float):
+        super().__init__()
+        self.self_attention_block = self_attention_block
+        self.cross_attention_block = cross_attention_block
+        self.feed_forward_block = feed_forward_block
+        self.residual_connections = nn.ModuleList([ResidualConnection(dropout) for _ in range(3)])
+
+    def forward(self, x, enc_out, src_mask, target_mask):
+        x = self.residual_connections[0](x, lambda x: self.self_attention_block(x, x, x, target_mask))
+        x = self.residual_connections[1](x, lambda x: self.cross_attention_block(x, enc_out, enc_out, src_mask))
+        x = self.residual_connections[2](x, self.feed_forward_block)
+        return x
+    
+class Decoder(nn.Module):
+    def __init__(self, layers: nn.ModuleList):
+        super().__init__()
+        self.layers = layers
+        self.norm = LayerNormalization()
+
+    def forward(self, x, enc_out, src_mask, target_mask):
+        for layer in self.layers:
+            x = layer(x, enc_out, src_mask, target_mask)
         return self.norm(x)
