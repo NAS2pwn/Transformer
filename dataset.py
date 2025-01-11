@@ -10,6 +10,7 @@ class BilingualDataset(Dataset):
         self.tokenizer_target = tokenizer_target
         self.src_lang = src_lang
         self.target_lang = target_lang
+        self.seq_len = seq_len
         
         self.sos_token = torch.tensor([tokenizer_src.token_to_id('[SOS]')], dtype=torch.int64)
         self.eos_token = torch.tensor([tokenizer_src.token_to_id('[EOS]')], dtype=torch.int64)
@@ -32,9 +33,6 @@ class BilingualDataset(Dataset):
         if enc_num_padding_tokens < 0 or dec_num_padding_tokens < 0:
             raise ValueError("Sentence is too long")
         
-        enc_tokens = torch.cat([self.sos_token, torch.tensor(enc_input_token), self.eos_token, torch.tensor([self.pad_token] * enc_num_padding_tokens)], dim=0)
-        dec_tokens = torch.cat([self.sos_token, torch.tensor(dec_input_token), self.eos_token, torch.tensor([self.pad_token] * dec_num_padding_tokens)], dim=0)
-
         encoder_input = torch.cat(
             [
                 self.sos_token,
