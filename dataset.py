@@ -59,6 +59,14 @@ class BilingualDataset(Dataset):
             ],
         )
 
+        print("encoder_input", encoder_input)
+        print("decoder_input", decoder_input)
+        print("label", label)
+        print("encoder_input.shape", encoder_input.shape)
+        print("decoder_input.shape", decoder_input.shape)
+        print("label.shape", label.shape)
+        print("self.seq_len", self.seq_len)
+
         assert encoder_input.shape[0] == self.seq_len
         assert decoder_input.shape[0] == self.seq_len
         assert label.shape[0] == self.seq_len

@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "datasets>=3.2.0",
+    "pathlib>=1.0.1",
+    "tensorboard>=2.18.0",
     "tokenizers>=0.21.0",
     "torch>=2.6.0",
+    "tqdm>=4.67.1",
 ]
