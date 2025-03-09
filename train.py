@@ -36,13 +36,10 @@ def get_or_build_tokenizer(config, dataset, lang):
 
 def get_ds(config):
     ds_raw = load_dataset("opus_books", f"{config['lang_src']}-{config['lang_target']}", split="train")
-    print("ds_raw", ds_raw)
     
     tokenizer_src = get_or_build_tokenizer(config, ds_raw, config["lang_src"])
     tokenizer_target = get_or_build_tokenizer(config, ds_raw, config["lang_target"])
     
-
-    print("tokenizer_src", tokenizer_src)
     # Training 90%, validation 10%
     train_ds_size = int(len(ds_raw) * 0.9)
     val_ds_size = len(ds_raw) - train_ds_size

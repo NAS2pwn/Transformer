@@ -31,7 +31,8 @@ class BilingualDataset(Dataset):
         dec_num_padding_tokens = self.seq_len - len(dec_input_token) - 1
 
         if enc_num_padding_tokens < 0 or dec_num_padding_tokens < 0:
-            raise ValueError("Sentence is too long")
+            print(f"Skipping sentence that is too long: '{src_text}' -> '{target_text}'")
+            return self.__getitem__(idx + 1 if idx + 1 < len(self.dataset) else 0)
         
         encoder_input = torch.cat(
             [
@@ -46,7 +47,6 @@ class BilingualDataset(Dataset):
             [
                 self.sos_token,
                 torch.tensor(dec_input_token, dtype=torch.int64),
-                self.eos_token,
                 torch.tensor([self.pad_token] * dec_num_padding_tokens, dtype=torch.int64),
             ],
         )
@@ -58,14 +58,6 @@ class BilingualDataset(Dataset):
                 torch.tensor([self.pad_token] * dec_num_padding_tokens, dtype=torch.int64),
             ],
         )
-
-        print("encoder_input", encoder_input)
-        print("decoder_input", decoder_input)
-        print("label", label)
-        print("encoder_input.shape", encoder_input.shape)
-        print("decoder_input.shape", decoder_input.shape)
-        print("label.shape", label.shape)
-        print("self.seq_len", self.seq_len)
 
         assert encoder_input.shape[0] == self.seq_len
         assert decoder_input.shape[0] == self.seq_len
